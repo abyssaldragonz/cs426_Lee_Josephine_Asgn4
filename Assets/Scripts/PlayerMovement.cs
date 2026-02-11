@@ -26,11 +26,17 @@ public class PlayerMovement : NetworkBehaviour
     // reference to the camera
     [SerializeField] private Camera playerCamera;
 
+    // other attributes
+    public float rotationSpeed = 90;
+    public float force = 700f;
+    Rigidbody rb;
+    Transform t;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        rb = GetComponent<Rigidbody>();
+        t = GetComponent<Transform>();
     }
     // Update is called once per frame
     void Update()
@@ -44,20 +50,31 @@ public class PlayerMovement : NetworkBehaviour
 
         if (Input.GetKey(KeyCode.W))
         {
-            moveDirection.z = +1f;
+            rb.linearVelocity += this.transform.forward * speed * Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S))
         {
-            moveDirection.z = -1f;
+            rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
         }
+
+        // Quaternion returns a rotation that rotates x degrees around the x axis and so on
+        // Taken from Unity Tutorial
         if (Input.GetKey(KeyCode.A))
         {
-            moveDirection.x = -1f;
+            t.rotation *= Quaternion.Euler(0, - rotationSpeed * Time.deltaTime, 0);
         }
         if (Input.GetKey(KeyCode.D))
         {
-            moveDirection.x = +1f;
+            t.rotation *= Quaternion.Euler(0, rotationSpeed * Time.deltaTime, 0);
         }
+
+        
+        // if (Keyboard.current != null && Keyboard.current.dKey.isPressed)
+            
+        // else if (Keyboard.current != null && Keyboard.current.aKey.isPressed)
+            
+
+
         transform.position += moveDirection * speed * Time.deltaTime;
 
 

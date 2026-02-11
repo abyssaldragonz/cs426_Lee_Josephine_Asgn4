@@ -10,12 +10,18 @@ public class Target : NetworkBehaviour
     //this method is called whenever a collision is detected
     private void OnCollisionEnter(Collision collision)
     {
-
         // printing if collision is detected on the console
-        Debug.Log("Collision Detected");
+        if (collision.gameObject.tag == "Bullet") {
+            Debug.Log("Collision Detected");
 
-        // if the collision is detected destroy the object
-        DestroyTargetServerRpc();
+            // if the collision is detected destroy the object
+            DestroyTargetServerRpc();
+
+            // also destroy bullet
+            GameObject col = collision.gameObject;
+            // col.GetComponent<NetworkObject>().Despawn(true);
+            Destroy(col);
+        }
     }
 
     // client can not spawn or destroy objects

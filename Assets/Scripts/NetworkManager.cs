@@ -19,7 +19,7 @@ public class NetworkManagerUI : MonoBehaviour
     //text to display the join code
     [SerializeField] private TMP_Text joinCodeText;
     // max number of players
-    [SerializeField] private int maxPlayers = 4;
+    [SerializeField] private int maxPlayers = 2;
     // join code
     public string joinCode;
 
