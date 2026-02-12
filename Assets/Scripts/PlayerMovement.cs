@@ -1,53 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-// adding namespaces
 using Unity.Netcode;
-// because we are using the NetworkBehaviour class
-// NewtorkBehaviour class is a part of the Unity.Netcode namespace
-// extension of MonoBehaviour that has functions related to multiplayer
+
 public class PlayerMovement : NetworkBehaviour
 {
     public float speed = 2f;
-    // create a list of colors
     public List<Color> colors = new List<Color>();
 
-    // getting the reference to the prefab
-    [SerializeField]
-    private GameObject spawnedPrefab;
-    // save the instantiated prefab
+    [SerializeField] private GameObject spawnedPrefab;
     private GameObject instantiatedPrefab;
 
     public GameObject cannon;
     public GameObject bullet;
 
-    // reference to the camera audio listener
     [SerializeField] private AudioListener audioListener;
-    // reference to the camera
     [SerializeField] private Camera playerCamera;
 
-    // other attributes
     public float rotationSpeed = 90;
     public float force = 700f;
+    
     Rigidbody rb;
     Transform t;
 
-    // Start is called before the first frame update
+    // Lives and game state tracking
+    private NetworkVariable<int> lives = new NetworkVariable<int>(3);
+    public bool isFirewall = true; // Will be set in OnNetworkSpawn
+    private NetworkVariable<int> thievesFound = new NetworkVariable<int>(0);
+    private const int TOTAL_THIEVES = 5;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         t = GetComponent<Transform>();
     }
-    // Update is called once per frame
+
     void Update()
     {
-        // check if the player is the owner of the object
-        // makes sure the script is only executed on the owners
-        // not on the other prefabs
         if (!IsOwner) return;
 
         Vector3 moveDirection = new Vector3(0, 0, 0);
 
+        // Forward/backward movement
         if (Input.GetKey(KeyCode.W))
         {
             rb.linearVelocity += this.transform.forward * speed * Time.deltaTime;
@@ -57,82 +51,160 @@ public class PlayerMovement : NetworkBehaviour
             rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
         }
 
-        // Quaternion returns a rotation that rotates x degrees around the x axis and so on
-        // Taken from Unity Tutorial
+        // Rotation
         if (Input.GetKey(KeyCode.A))
         {
-            t.rotation *= Quaternion.Euler(0, - rotationSpeed * Time.deltaTime, 0);
+            t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
         }
         if (Input.GetKey(KeyCode.D))
         {
             t.rotation *= Quaternion.Euler(0, rotationSpeed * Time.deltaTime, 0);
         }
 
-        
-        // if (Keyboard.current != null && Keyboard.current.dKey.isPressed)
-            
-        // else if (Keyboard.current != null && Keyboard.current.aKey.isPressed)
-            
-
-
         transform.position += moveDirection * speed * Time.deltaTime;
 
+        // ========== Jump with SPACE (works for BOTH players) ==========
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rb.AddForce(Vector3.up * 15f, ForceMode.Impulse);
+            Debug.Log("Jump!");
+        }
+        // ===============================================================
 
-        // if I is pressed spawn the object
-        // if J is pressed destroy the object
+        // ========== Only FIREWALL (CLIENT) can guess with G ==========
+        if (isFirewall && Input.GetKeyDown(KeyCode.G))
+        {
+            Debug.Log($"G pressed! Firewall at {transform.position}");
+            GuessBoxServerRpc();
+        }
+        // ==============================================================
+
+        // Keep original spawning functionality (for testing)
         if (Input.GetKeyDown(KeyCode.I))
         {
-            //instantiate the object
             instantiatedPrefab = Instantiate(spawnedPrefab);
-            // spawn it on the scene
             instantiatedPrefab.GetComponent<NetworkObject>().Spawn(true);
         }
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            //despawn the object
             instantiatedPrefab.GetComponent<NetworkObject>().Despawn(true);
-            // destroy the object
             Destroy(instantiatedPrefab);
         }
 
-        if (Input.GetButtonDown("Fire1"))
+        // Debug: print position
+        if (Input.GetKeyDown(KeyCode.P))
         {
-            // call the BulletSpawningServerRpc method
-            // as client can not spawn objects
-            BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+            Debug.Log($"Player position: {transform.position}");
         }
     }
 
-    // this method is called when the object is spawned
-    // we will change the color of the objects
+    [ServerRpc]
+    void GuessBoxServerRpc()
+    {
+        Debug.Log("GuessBoxServerRpc called on server!");
+        
+        // Get ALL raycast hits, then find first non-player hit
+        Vector3 rayStart = transform.position + Vector3.up * 5f;
+        RaycastHit[] hits = Physics.RaycastAll(rayStart, Vector3.down, 20f);
+        
+        Debug.Log($"RaycastAll found {hits.Length} hits");
+        
+        // Find the first hit that's NOT the player
+        foreach (RaycastHit hit in hits)
+        {
+            Debug.Log($"Checking hit: {hit.collider.gameObject.name}");
+            
+            // Skip if it's the player
+            if (hit.collider.gameObject == this.gameObject)
+            {
+                Debug.Log("Skipping player");
+                continue;
+            }
+            
+            // Found a non-player object - check if it's a box
+            BoxController box = hit.collider.GetComponent<BoxController>();
+            if (box != null)
+            {
+                Debug.Log($"Found box: {hit.collider.gameObject.name}");
+                
+                if (!box.IsRevealed())
+                {
+                    bool foundThief = box.RevealBox();
+                    
+                    if (foundThief)
+                    {
+                        thievesFound.Value++;
+                        Debug.Log($"THIEF FOUND! Total: {thievesFound.Value}/{TOTAL_THIEVES}");
+                        
+                        if (thievesFound.Value >= TOTAL_THIEVES)
+                        {
+                            GameOverClientRpc(true);
+                        }
+                    }
+                    else
+                    {
+                        lives.Value--;
+                        Debug.Log($"WRONG! Lives remaining: {lives.Value}");
+                        UpdateLivesClientRpc(lives.Value);
+                        
+                        if (lives.Value <= 0)
+                        {
+                            GameOverClientRpc(false);
+                        }
+                    }
+                    
+                    return;
+                }
+                else
+                {
+                    Debug.Log("Box already revealed");
+                    return;
+                }
+            }
+        }
+        
+        Debug.Log("No box found under player!");
+    }
+
+    [ClientRpc]
+    void UpdateLivesClientRpc(int newLives)
+    {
+        Debug.Log($"LIVES UPDATE: {newLives} remaining");
+    }
+
+    [ClientRpc]
+    void GameOverClientRpc(bool firewallWon)
+    {
+        if (firewallWon)
+        {
+            Debug.Log("FIREWALL WINS! All thieves caught!");
+        }
+        else
+        {
+            Debug.Log("GAME OVER! Firewall ran out of lives.");
+        }
+    }
+
     public override void OnNetworkSpawn()
     {
         GetComponent<MeshRenderer>().material.color = colors[(int)OwnerClientId];
 
-        // check if the player is the owner of the object
+        // Role Assignment
+        if (IsHost)
+        {
+            isFirewall = false; // Host is Hacker
+            Debug.Log("This player is the HACKER (Host) - gives hints");
+        }
+        else
+        {
+            isFirewall = true; // Client is Firewall
+            Debug.Log("This player is the FIREWALL (Client) - finds thieves");
+        }
+
         if (!IsOwner) return;
-        // if the player is the owner of the object
-        // enable the camera and the audio listener
+        
         audioListener.enabled = true;
         playerCamera.enabled = true;
-    }
-
-    // need to add the [ServerRPC] attribute
-    [ServerRpc]
-    // method name must end with ServerRPC
-    private void BulletSpawningServerRpc(Vector3 position, Quaternion rotation)
-    {
-        // call the BulletSpawningClientRpc method to locally create the bullet on all clients
-        BulletSpawningClientRpc(position, rotation);
-    }
-
-    [ClientRpc]
-    private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation)
-    {
-        GameObject newBullet = Instantiate(bullet, position, rotation);
-        newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
-        newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * 1500);
-        // newBullet.GetComponent<NetworkObject>().Spawn(true);
     }
 }

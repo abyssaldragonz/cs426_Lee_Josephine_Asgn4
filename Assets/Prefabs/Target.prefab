@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7523216352190927115}
   - component: {fileID: 3621977860134338406}
   - component: {fileID: 3438676050090964243}
-  - component: {fileID: 2554248991751864619}
+  - component: {fileID: 819325371619633835}
   m_Layer: 0
   m_Name: Target
   m_TagString: Untagged
@@ -34,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.58686, y: 1.5, z: -0.86845}
-  m_LocalScale: {x: 1, y: 10, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -232,7 +232,7 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &2554248991751864619
+--- !u!114 &819325371619633835
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,7 +241,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8066804027994096988}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76beed7d698b31e4da207c841a60efb7, type: 3}
+  m_Script: {fileID: 11500000, guid: af6139a68fe45e547b340d87c81b44bc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::BoxController
   ShowTopMostFoldoutHeaderGroup: 1
+  computerPartName: RAM
+  nameText: {fileID: 0}
+  normalMaterial: {fileID: 2100000, guid: c4d361b30179326458bb5a6056d0e6e7, type: 2}
+  correctMaterial: {fileID: 2100000, guid: 620acf230061a9d4f8c4db50eef52ace, type: 2}
+  wrongMaterial: {fileID: 2100000, guid: 2ab5bd0f4d0494c4983af889c14f6bd0, type: 2}
