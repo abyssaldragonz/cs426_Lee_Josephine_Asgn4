@@ -305,11 +305,12 @@ MonoBehaviour:
   spawnedPrefab: {fileID: 8949247008893472442, guid: 286fe4193bf5a9e449f0a82a91473ea5, type: 3}
   cannon: {fileID: 2759832969780148691}
   bullet: {fileID: 7654982766713845763, guid: 50892aee52ca6b44c94583dc76cedd3f, type: 3}
+  cam: {fileID: 0}
   audioListener: {fileID: 7973212071354034577}
   playerCamera: {fileID: 5201658584094757720}
   rotationSpeed: 90
   force: 700
-  jumpForce: 5
+  sensitivityX: 15
   isFirewall: 1
 --- !u!54 &-8505701321263588543
 Rigidbody:

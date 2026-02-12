@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 819325371619633835}
   m_Layer: 0
   m_Name: Target
-  m_TagString: Untagged
+  m_TagString: Box
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a5919e4cf7fb3dd428484e2538b110b2, type: 2}
+  - {fileID: 2100000, guid: c4d361b30179326458bb5a6056d0e6e7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -246,6 +246,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BoxController
   ShowTopMostFoldoutHeaderGroup: 1
   computerPartName: RAM
+  hasThief: 0
   nameText: {fileID: 0}
   normalMaterial: {fileID: 2100000, guid: c4d361b30179326458bb5a6056d0e6e7, type: 2}
   correctMaterial: {fileID: 2100000, guid: 620acf230061a9d4f8c4db50eef52ace, type: 2}

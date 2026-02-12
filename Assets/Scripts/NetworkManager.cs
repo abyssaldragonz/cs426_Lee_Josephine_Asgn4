@@ -18,6 +18,7 @@ public class NetworkManagerUI : MonoBehaviour
 
     //text to display the join code
     [SerializeField] private TMP_Text joinCodeText;
+    [SerializeField] private TMP_Text secondaryText;
     // max number of players
     [SerializeField] private int maxPlayers = 2;
     // join code
@@ -44,6 +45,8 @@ public class NetworkManagerUI : MonoBehaviour
             // call the NetworkManager's StartClient() method
             // NetworkManager.Singleton.StartClient();
             StartClientRelay(joinCodeInputField.text);
+
+            // Change text to say instructions
         });
     }
 
@@ -84,6 +87,7 @@ public class NetworkManagerUI : MonoBehaviour
 
         // display the join code
         joinCodeText.text = joinCode;
+        secondaryText.text = "You are the HACKER (Host). Your objective: relay information to the FIREWALL! Use one word to connect the boxes where the thieves are hiding!";
     }
 
     // start client relay
@@ -107,6 +111,9 @@ public class NetworkManagerUI : MonoBehaviour
 
         // set it on the transport
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
+
+        // Change text to say instructions
+        secondaryText.text = "You are the FIREWALL (Client). Your objective: find the thieves hidden in the boxes. Press (G) to make a guess!";
 
         // start client
         NetworkManager.Singleton.StartClient();

@@ -19,9 +19,13 @@ public class PlayerMovement : NetworkBehaviour
 
     public float rotationSpeed = 90;
     public float force = 700f;
+    public float sensitivityX = 15f;
     
     Rigidbody rb;
     Transform t;
+    float mouseX;
+
+    bool isGrounded;
 
     // Lives and game state tracking
     private NetworkVariable<int> lives = new NetworkVariable<int>(3);
@@ -33,13 +37,12 @@ public class PlayerMovement : NetworkBehaviour
     {
         rb = GetComponent<Rigidbody>();
         t = GetComponent<Transform>();
+        isGrounded = false;
     }
 
     void Update()
     {
         if (!IsOwner) return;
-
-        Vector3 moveDirection = new Vector3(0, 0, 0);
 
         // Forward/backward movement
         if (Input.GetKey(KeyCode.W))
@@ -51,20 +54,23 @@ public class PlayerMovement : NetworkBehaviour
             rb.linearVelocity -= this.transform.forward * speed * Time.deltaTime;
         }
 
-        // Rotation
         if (Input.GetKey(KeyCode.A))
         {
-            t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
+            // t.rotation *= Quaternion.Euler(0, -rotationSpeed * Time.deltaTime, 0);
+            rb.linearVelocity -= this.transform.right * speed * Time.deltaTime;
         }
         if (Input.GetKey(KeyCode.D))
         {
-            t.rotation *= Quaternion.Euler(0, rotationSpeed * Time.deltaTime, 0);
+            // t.rotation *= Quaternion.Euler(0, rotationSpeed * Time.deltaTime, 0);
+            rb.linearVelocity += this.transform.right * speed * Time.deltaTime;
         }
 
-        transform.position += moveDirection * speed * Time.deltaTime;
+        // Camera rotation
+        float h = 500f * Input.GetAxis("Mouse X") * Time.deltaTime;
+        t.transform.Rotate(0, h, 0);
 
         // ========== Jump with SPACE (works for BOTH players) ==========
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             rb.AddForce(Vector3.up * 15f, ForceMode.Impulse);
             Debug.Log("Jump!");
@@ -96,6 +102,21 @@ public class PlayerMovement : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             Debug.Log($"Player position: {transform.position}");
+        }
+    }
+
+    void OnCollisionEnter(Collision coll)
+    {
+        if(coll.gameObject.tag == "Floor" || coll.gameObject.tag == "Box")
+        {
+            isGrounded = true;
+        }
+    }
+    void OnCollisionExit(Collision coll)
+    {
+        if(coll.gameObject.tag == "Floor" || coll.gameObject.tag == "Box")
+        {
+            isGrounded = false;
         }
     }
 
@@ -178,7 +199,7 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (firewallWon)
         {
-            Debug.Log("FIREWALL WINS! All thieves caught!");
+            Debug.Log("PLAYERS WINS! All thieves caught!");
         }
         else
         {
@@ -195,11 +216,14 @@ public class PlayerMovement : NetworkBehaviour
         {
             isFirewall = false; // Host is Hacker
             Debug.Log("This player is the HACKER (Host) - gives hints");
+            this.transform.position = new Vector3(0f, 30f, -10f); // Move Host (Hacker)
+            playerCamera.transform.Rotate(75f, 0, 0);
         }
         else
         {
             isFirewall = true; // Client is Firewall
             Debug.Log("This player is the FIREWALL (Client) - finds thieves");
+            this.transform.position = new Vector3(0f, 2f, -10f); // Move Client (Firewall)
         }
 
         if (!IsOwner) return;
