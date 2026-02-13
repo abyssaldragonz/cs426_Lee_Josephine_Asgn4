@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using TMPro;
 
 public class GameManager : NetworkBehaviour
 {
@@ -14,7 +15,7 @@ public class GameManager : NetworkBehaviour
                             {"AND", "OR", "NOT", "NAND", "NOR"}
                            };
     [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
-    
+    [SerializeField] private TextMeshProUGUI joinCodeText;    
     private const int TOTAL_THIEVES = 5;
     
     void Awake()
@@ -30,12 +31,76 @@ public class GameManager : NetworkBehaviour
         if (IsServer)
         {
             Debug.Log(" GameManager is on Server, initializing game...");
+            DisplayJoinCode();
             InitializeGame();
         }
         else
         {
             Debug.Log(" GameManager is on Client (not initializing)");
         }
+    }
+
+    private void DisplayJoinCode()
+    {
+        if (joinCodeText == null)
+        {
+            Debug.LogError("joinCodeText is not assigned in the Inspector!");
+            return;
+        }
+
+        // Try singleton first, then search for the component
+        if(NetworkManager.Singleton.IsHost)
+        {
+            string code = NetworkManagerUI.Instance.joinCode;
+            if (string.IsNullOrEmpty(code))
+            {
+                Debug.LogWarning("Join code is empty - it may not be set yet");
+                StartCoroutine(WaitForJoinCode());
+            }
+            else
+            {
+                joinCodeText.text = $"Join Code: {code}";
+                Debug.Log($"Join code displayed: {code}");
+            }
+        }
+    }
+
+    private IEnumerator WaitForJoinCode()
+    {
+        int attempts = 0;
+        while (attempts < 10) // Try up to 10 times
+        {
+            yield return new WaitForSeconds(0.3f);
+            
+            NetworkManagerUI networkUI = NetworkManagerUI.Instance;
+            if (networkUI == null)
+            {
+                networkUI = FindObjectOfType<NetworkManagerUI>();
+            }
+
+            if (networkUI == null)
+            {
+                Debug.LogWarning($"Attempt {attempts + 1}: NetworkUI still not found");
+                attempts++;
+                continue;
+            }
+
+            string code = networkUI.joinCode;
+            if (!string.IsNullOrEmpty(code))
+            {
+                if (joinCodeText != null)
+                {
+                    joinCodeText.text = $"Join Code: {code}";
+                    Debug.Log($"Join code displayed (after {attempts + 1} attempts): {code}");
+                }
+                yield break;
+            }
+            
+            Debug.LogWarning($"Attempt {attempts + 1}: Join code is still empty");
+            attempts++;
+        }
+        
+        Debug.LogError("Failed to display join code after 10 attempts");
     }
 
     void InitializeGame()

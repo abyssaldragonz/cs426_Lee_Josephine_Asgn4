@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using TMPro;
 
 public class PlayerMovement : NetworkBehaviour
 {
@@ -13,14 +14,14 @@ public class PlayerMovement : NetworkBehaviour
 
     public GameObject cannon;
     public GameObject bullet;
-
     [SerializeField] private AudioListener audioListener;
     [SerializeField] private Camera playerCamera;
+
 
     public float rotationSpeed = 90;
     public float force = 700f;
     public float sensitivityX = 15f;
-    
+
     Rigidbody rb;
     Transform t;
     float mouseX;
@@ -124,40 +125,40 @@ public class PlayerMovement : NetworkBehaviour
     void GuessBoxServerRpc()
     {
         Debug.Log("GuessBoxServerRpc called on server!");
-        
+
         // Get ALL raycast hits, then find first non-player hit
         Vector3 rayStart = transform.position + Vector3.up * 5f;
         RaycastHit[] hits = Physics.RaycastAll(rayStart, Vector3.down, 20f);
-        
+
         Debug.Log($"RaycastAll found {hits.Length} hits");
-        
+
         // Find the first hit that's NOT the player
         foreach (RaycastHit hit in hits)
         {
             Debug.Log($"Checking hit: {hit.collider.gameObject.name}");
-            
+
             // Skip if it's the player
             if (hit.collider.gameObject == this.gameObject)
             {
                 Debug.Log("Skipping player");
                 continue;
             }
-            
+
             // Found a non-player object - check if it's a box
             BoxController box = hit.collider.GetComponent<BoxController>();
             if (box != null)
             {
                 Debug.Log($"Found box: {hit.collider.gameObject.name}");
-                
+
                 if (!box.IsRevealed())
                 {
                     bool foundThief = box.RevealBox();
-                    
+
                     if (foundThief)
                     {
                         thievesFound.Value++;
                         Debug.Log($"THIEF FOUND! Total: {thievesFound.Value}/{TOTAL_THIEVES}");
-                        
+
                         if (thievesFound.Value >= TOTAL_THIEVES)
                         {
                             GameOverClientRpc(true);
@@ -168,13 +169,13 @@ public class PlayerMovement : NetworkBehaviour
                         lives.Value--;
                         Debug.Log($"WRONG! Lives remaining: {lives.Value}");
                         UpdateLivesClientRpc(lives.Value);
-                        
+
                         if (lives.Value <= 0)
                         {
                             GameOverClientRpc(false);
                         }
                     }
-                    
+
                     return;
                 }
                 else
@@ -184,7 +185,7 @@ public class PlayerMovement : NetworkBehaviour
                 }
             }
         }
-        
+
         Debug.Log("No box found under player!");
     }
 
@@ -200,10 +201,12 @@ public class PlayerMovement : NetworkBehaviour
         if (firewallWon)
         {
             Debug.Log("PLAYERS WINS! All thieves caught!");
+            //go to win screen
         }
         else
         {
             Debug.Log("GAME OVER! Firewall ran out of lives.");
+            //go to lose screen
         }
     }
 
@@ -227,7 +230,7 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         if (!IsOwner) return;
-        
+
         audioListener.enabled = true;
         playerCamera.enabled = true;
     }
