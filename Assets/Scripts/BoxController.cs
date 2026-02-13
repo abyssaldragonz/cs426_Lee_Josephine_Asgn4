@@ -7,7 +7,7 @@ using TMPro;
 public class BoxController : NetworkBehaviour
 {
     // Computer part name on this box
-    public string computerPartName = "RAM";
+    public string computerPartName;
     
     // Is there a thief hidden here? (regular bool, NOT NetworkVariable)
     [HideInInspector] public bool hasThief = false;
@@ -20,7 +20,7 @@ public class BoxController : NetworkBehaviour
     );
     
     // UI elements
-    [SerializeField] private TextMeshPro nameText;
+    [SerializeField] private TMP_Text nameText;
     
     // Materials for visual feedback
     [SerializeField] private Material normalMaterial;
@@ -29,14 +29,14 @@ public class BoxController : NetworkBehaviour
 
     void Start()
     {
-        if (nameText != null)
-            nameText.text = computerPartName;
+        nameText.text = computerPartName;
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         isRevealed.OnValueChanged += OnRevealChanged;
+        nameText.text = computerPartName;
     }
 
     void OnRevealChanged(bool oldValue, bool newValue)

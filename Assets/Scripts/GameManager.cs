@@ -7,6 +7,12 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
     
+    private string[,] clues = {
+                            {"keyboard", "mouse", "scanner", "joystick", "microphone"},
+                            {"monitor", "speaker", "printer", "headphones", "vibrations"},
+                            {"RAM", "SSD", "ROM", "cache", "HDD"},
+                            {"AND", "OR", "NOT", "NAND", "NOR"}
+                           };
     [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
     
     private const int TOTAL_THIEVES = 5;
@@ -46,15 +52,18 @@ public class GameManager : NetworkBehaviour
         
         // Randomly place 5 thieves
         List<int> thiefIndices = new List<int>();
+        int randCategory = Random.Range(0, clues.GetLength(0)); // choose random category
         
         while (thiefIndices.Count < TOTAL_THIEVES)
         {
             int randomIndex = Random.Range(0, boxes.Length);
-            if (!thiefIndices.Contains(randomIndex))
+            if (!thiefIndices.Contains(randomIndex)) // doesn't already exist
             {
                 thiefIndices.Add(randomIndex);
                 boxes[randomIndex].SetThief(true);
-                Debug.Log($" Thief placed at box {randomIndex} ({boxes[randomIndex].gameObject.name})");
+                // Debug.Log($"DETECTED {clues[randCategory, (thiefIndices.Count-1)]}");
+                boxes[randomIndex].computerPartName = clues[randCategory, (thiefIndices.Count-1)];
+                Debug.Log($" Thief placed at box {randomIndex} ({boxes[randomIndex].computerPartName})");
             }
         }
         
@@ -65,7 +74,7 @@ public class GameManager : NetworkBehaviour
         {
             if (boxes[i].HasThief())
             {
-                Debug.Log($"   Box {i} ({boxes[i].gameObject.name}): HAS THIEF ✓");
+                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): HAS THIEF ✓");
             }
         }
     }
