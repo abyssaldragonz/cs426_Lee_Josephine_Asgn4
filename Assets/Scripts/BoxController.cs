@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-using Unity.Collections; // ADD THIS for FixedString
+using Unity.Collections;
 
 public class BoxController : NetworkBehaviour
 {
-   
     private NetworkVariable<FixedString64Bytes> computerPartName = new NetworkVariable<FixedString64Bytes>(
         "",
         NetworkVariableReadPermission.Everyone,
@@ -33,7 +32,6 @@ public class BoxController : NetworkBehaviour
 
     void Start()
     {
-        // Update to use .Value
         nameText.text = computerPartName.Value.ToString();
     }
 
@@ -41,19 +39,24 @@ public class BoxController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
         isRevealed.OnValueChanged += OnRevealChanged;
-        
-        
         computerPartName.OnValueChanged += OnNameChanged;
+        hasThief.OnValueChanged += OnThiefChanged; // ADD: Listen for thief changes
         
-        // Update text with current value
         nameText.text = computerPartName.Value.ToString();
+        UpdateTextColor(); // ADD: Update color on spawn
     }
 
-  
     void OnNameChanged(FixedString64Bytes oldValue, FixedString64Bytes newValue)
     {
         nameText.text = newValue.ToString();
+        UpdateTextColor(); // ADD: Update color when name changes
         Debug.Log($"Name updated to: {newValue}");
+    }
+    
+    // ADD: Callback when thief status changes
+    void OnThiefChanged(bool oldValue, bool newValue)
+    {
+        UpdateTextColor();
     }
 
     void OnRevealChanged(bool oldValue, bool newValue)
@@ -61,6 +64,23 @@ public class BoxController : NetworkBehaviour
         if (newValue)
         {
             UpdateBoxVisual();
+        }
+    }
+    
+    // Method to update text color based on role and thief status
+    void UpdateTextColor()
+    {
+        if (nameText == null) return;
+        
+        // Only show green text to the HOST (Hacker)
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost && hasThief.Value && !isRevealed.Value)
+        {
+            nameText.color = Color.green;
+            Debug.Log($"{gameObject.name} text set to GREEN for Hacker");
+        }
+        else
+        {
+            nameText.color = Color.white;
         }
     }
 
@@ -78,6 +98,7 @@ public class BoxController : NetworkBehaviour
         
         isRevealed.Value = true;
         UpdateBoxVisual();
+        UpdateTextColor(); // ADD: Update text color when revealed
         
         Debug.Log($"   Returning: {hasThief.Value}");
         return hasThief.Value;
@@ -98,14 +119,12 @@ public class BoxController : NetworkBehaviour
         }
     }
 
-    // Server sets which boxes have thieves
     public void SetThief(bool hasThiefHere)
     {
         this.hasThief.Value = hasThiefHere;
         Debug.Log($" SetThief on {gameObject.name}: {hasThiefHere}");
     }
 
-   
     public void SetComputerPartName(string name)
     {
         computerPartName.Value = name;
@@ -121,7 +140,8 @@ public class BoxController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         isRevealed.OnValueChanged -= OnRevealChanged;
-        computerPartName.OnValueChanged -= OnNameChanged; 
+        computerPartName.OnValueChanged -= OnNameChanged;
+        hasThief.OnValueChanged -= OnThiefChanged; // ADD: Unsubscribe
         base.OnNetworkDespawn();
     }
 }
