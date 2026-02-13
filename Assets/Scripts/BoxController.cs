@@ -9,8 +9,11 @@ public class BoxController : NetworkBehaviour
     // Computer part name on this box
     public string computerPartName;
     
-    // Is there a thief hidden here? (regular bool, NOT NetworkVariable)
-    [HideInInspector] public bool hasThief = false;
+    private NetworkVariable<bool> hasThief = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
     
     // Has this box been revealed?
     private NetworkVariable<bool> isRevealed = new NetworkVariable<bool>(
@@ -51,7 +54,7 @@ public class BoxController : NetworkBehaviour
     public bool RevealBox()
     {
         Debug.Log($"   RevealBox on {gameObject.name}");
-        Debug.Log($"   hasThief = {hasThief}");
+        Debug.Log($"   hasThief = {hasThief.Value}"); // Add .Value
         Debug.Log($"   isRevealed = {isRevealed.Value}");
         
         if (isRevealed.Value)
@@ -63,8 +66,8 @@ public class BoxController : NetworkBehaviour
         isRevealed.Value = true;
         UpdateBoxVisual();
         
-        Debug.Log($"   Returning: {hasThief}");
-        return hasThief;
+        Debug.Log($"   Returning: {hasThief.Value}"); // Add .Value
+        return hasThief.Value; // Add .Value
     }
 
     public bool IsRevealed()
@@ -77,22 +80,22 @@ public class BoxController : NetworkBehaviour
         MeshRenderer renderer = GetComponent<MeshRenderer>();
         if (renderer != null && isRevealed.Value)
         {
-            renderer.material = hasThief ? correctMaterial : wrongMaterial;
-            Debug.Log($"Updated visual for {gameObject.name}: {(hasThief ? "GREEN (thief)" : "RED (no thief)")}");
+            renderer.material = hasThief.Value ? correctMaterial : wrongMaterial; // Add .Value
+            Debug.Log($"Updated visual for {gameObject.name}: {(hasThief.Value ? "GREEN (thief)" : "RED (no thief)")}"); // Add .Value
         }
     }
 
     // Server sets which boxes have thieves
     public void SetThief(bool hasThiefHere)
     {
-        this.hasThief = hasThiefHere;
+        this.hasThief.Value = hasThiefHere; // Add .Value
         Debug.Log($" SetThief on {gameObject.name}: {hasThiefHere}");
         nameText.text = computerPartName;
     }
 
     public bool HasThief()
     {
-        return hasThief;
+        return hasThief.Value;
     }
 
     public override void OnNetworkDespawn()
