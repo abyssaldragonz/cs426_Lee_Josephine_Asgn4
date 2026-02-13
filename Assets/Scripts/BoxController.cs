@@ -87,6 +87,7 @@ public class BoxController : NetworkBehaviour
     {
         this.hasThief = hasThiefHere;
         Debug.Log($" SetThief on {gameObject.name}: {hasThiefHere}");
+        nameText.text = computerPartName;
     }
 
     public bool HasThief()

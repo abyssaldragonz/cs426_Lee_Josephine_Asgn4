@@ -53,6 +53,7 @@ public class GameManager : NetworkBehaviour
         // Randomly place 5 thieves
         List<int> thiefIndices = new List<int>();
         int randCategory = Random.Range(0, clues.GetLength(0)); // choose random category
+        List<(int, int)> usedClues = new List<(int, int)>(); // store used clues
         
         while (thiefIndices.Count < TOTAL_THIEVES)
         {
@@ -63,6 +64,7 @@ public class GameManager : NetworkBehaviour
                 boxes[randomIndex].SetThief(true);
                 // Debug.Log($"DETECTED {clues[randCategory, (thiefIndices.Count-1)]}");
                 boxes[randomIndex].computerPartName = clues[randCategory, (thiefIndices.Count-1)];
+                usedClues.Add((randCategory, (thiefIndices.Count-1)));
                 Debug.Log($" Thief placed at box {randomIndex} ({boxes[randomIndex].computerPartName})");
             }
         }
@@ -70,11 +72,27 @@ public class GameManager : NetworkBehaviour
         Debug.Log($" All {TOTAL_THIEVES} thieves placed!");
         
         // Debug: Verify thieves are set
+        
         for (int i = 0; i < boxes.Length; i++)
         {
             if (boxes[i].HasThief())
             {
                 Debug.Log($"   Box {i} ({boxes[i].computerPartName}): HAS THIEF ✓");
+            }
+
+            else // not thief so assign other computer parts
+            {
+                int cat = Random.Range(0, clues.GetLength(0));
+                int ind = Random.Range(0, 5);
+                while (usedClues.Contains((cat,ind)))
+                {
+                    cat = Random.Range(0, clues.GetLength(0));
+                    ind = Random.Range(0, 5);
+                }
+                usedClues.Add((cat,ind));
+                boxes[i].computerPartName = clues[cat, ind];
+                
+                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): DOES NOT HAVE THIEF X");
             }
         }
     }
