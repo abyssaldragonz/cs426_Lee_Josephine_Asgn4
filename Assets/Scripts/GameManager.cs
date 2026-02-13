@@ -38,7 +38,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void InitializeGame()
+   void InitializeGame()
     {
         Debug.Log(" Initializing game - placing thieves...");
         
@@ -50,37 +50,34 @@ public class GameManager : NetworkBehaviour
         
         Debug.Log($"Found {boxes.Length} boxes");
         
-        // Randomly place 5 thieves
         List<int> thiefIndices = new List<int>();
-        int randCategory = Random.Range(0, clues.GetLength(0)); // choose random category
-        List<(int, int)> usedClues = new List<(int, int)>(); // store used clues
+        int randCategory = Random.Range(0, clues.GetLength(0));
+        List<(int, int)> usedClues = new List<(int, int)>();
         
         while (thiefIndices.Count < TOTAL_THIEVES)
         {
             int randomIndex = Random.Range(0, boxes.Length);
-            if (!thiefIndices.Contains(randomIndex)) // doesn't already exist
+            if (!thiefIndices.Contains(randomIndex))
             {
                 thiefIndices.Add(randomIndex);
                 boxes[randomIndex].SetThief(true);
-                // Debug.Log($"DETECTED {clues[randCategory, (thiefIndices.Count-1)]}");
-                boxes[randomIndex].computerPartName = clues[randCategory, (thiefIndices.Count-1)];
+                
+                // CHANGE: Use SetComputerPartName instead of direct assignment
+                boxes[randomIndex].SetComputerPartName(clues[randCategory, (thiefIndices.Count-1)]);
                 usedClues.Add((randCategory, (thiefIndices.Count-1)));
-                Debug.Log($" Thief placed at box {randomIndex} ({boxes[randomIndex].computerPartName})");
+                Debug.Log($" Thief placed at box {randomIndex} ({clues[randCategory, (thiefIndices.Count-1)]})");
             }
         }
         
         Debug.Log($" All {TOTAL_THIEVES} thieves placed!");
         
-        // Debug: Verify thieves are set
-        
         for (int i = 0; i < boxes.Length; i++)
         {
             if (boxes[i].HasThief())
             {
-                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): HAS THIEF ✓");
+                Debug.Log($"   Box {i}: HAS THIEF ✓");
             }
-
-            else // not thief so assign other computer parts
+            else
             {
                 int cat = Random.Range(0, clues.GetLength(0));
                 int ind = Random.Range(0, 5);
@@ -90,9 +87,11 @@ public class GameManager : NetworkBehaviour
                     ind = Random.Range(0, 5);
                 }
                 usedClues.Add((cat,ind));
-                boxes[i].computerPartName = clues[cat, ind];
                 
-                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): DOES NOT HAVE THIEF X");
+                // CHANGE: Use SetComputerPartName instead of direct assignment
+                boxes[i].SetComputerPartName(clues[cat, ind]);
+                
+                Debug.Log($"   Box {i} ({clues[cat, ind]}): DOES NOT HAVE THIEF X");
             }
         }
     }

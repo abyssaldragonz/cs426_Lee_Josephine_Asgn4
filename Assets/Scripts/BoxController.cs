@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
+using Unity.Collections; // ADD THIS for FixedString
 
 public class BoxController : NetworkBehaviour
 {
-    // Computer part name on this box
-    public string computerPartName;
+   
+    private NetworkVariable<FixedString64Bytes> computerPartName = new NetworkVariable<FixedString64Bytes>(
+        "",
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
     
     private NetworkVariable<bool> hasThief = new NetworkVariable<bool>(
         false,
@@ -15,31 +20,40 @@ public class BoxController : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
     
-    // Has this box been revealed?
     private NetworkVariable<bool> isRevealed = new NetworkVariable<bool>(
         false,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
     
-    // UI elements
     [SerializeField] private TMP_Text nameText;
-    
-    // Materials for visual feedback
     [SerializeField] private Material normalMaterial;
     [SerializeField] private Material correctMaterial;
     [SerializeField] private Material wrongMaterial;
 
     void Start()
     {
-        nameText.text = computerPartName;
+        // Update to use .Value
+        nameText.text = computerPartName.Value.ToString();
     }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
         isRevealed.OnValueChanged += OnRevealChanged;
-        nameText.text = computerPartName;
+        
+        
+        computerPartName.OnValueChanged += OnNameChanged;
+        
+        // Update text with current value
+        nameText.text = computerPartName.Value.ToString();
+    }
+
+  
+    void OnNameChanged(FixedString64Bytes oldValue, FixedString64Bytes newValue)
+    {
+        nameText.text = newValue.ToString();
+        Debug.Log($"Name updated to: {newValue}");
     }
 
     void OnRevealChanged(bool oldValue, bool newValue)
@@ -50,11 +64,10 @@ public class BoxController : NetworkBehaviour
         }
     }
 
-    // Called when Firewall guesses this box
     public bool RevealBox()
     {
         Debug.Log($"   RevealBox on {gameObject.name}");
-        Debug.Log($"   hasThief = {hasThief.Value}"); // Add .Value
+        Debug.Log($"   hasThief = {hasThief.Value}");
         Debug.Log($"   isRevealed = {isRevealed.Value}");
         
         if (isRevealed.Value)
@@ -66,8 +79,8 @@ public class BoxController : NetworkBehaviour
         isRevealed.Value = true;
         UpdateBoxVisual();
         
-        Debug.Log($"   Returning: {hasThief.Value}"); // Add .Value
-        return hasThief.Value; // Add .Value
+        Debug.Log($"   Returning: {hasThief.Value}");
+        return hasThief.Value;
     }
 
     public bool IsRevealed()
@@ -80,17 +93,24 @@ public class BoxController : NetworkBehaviour
         MeshRenderer renderer = GetComponent<MeshRenderer>();
         if (renderer != null && isRevealed.Value)
         {
-            renderer.material = hasThief.Value ? correctMaterial : wrongMaterial; // Add .Value
-            Debug.Log($"Updated visual for {gameObject.name}: {(hasThief.Value ? "GREEN (thief)" : "RED (no thief)")}"); // Add .Value
+            renderer.material = hasThief.Value ? correctMaterial : wrongMaterial;
+            Debug.Log($"Updated visual for {gameObject.name}: {(hasThief.Value ? "GREEN (thief)" : "RED (no thief)")}");
         }
     }
 
     // Server sets which boxes have thieves
     public void SetThief(bool hasThiefHere)
     {
-        this.hasThief.Value = hasThiefHere; // Add .Value
+        this.hasThief.Value = hasThiefHere;
         Debug.Log($" SetThief on {gameObject.name}: {hasThiefHere}");
-        nameText.text = computerPartName;
+    }
+
+   
+    public void SetComputerPartName(string name)
+    {
+        computerPartName.Value = name;
+        nameText.text = name;
+        Debug.Log($"SetComputerPartName on {gameObject.name}: {name}");
     }
 
     public bool HasThief()
@@ -101,6 +121,7 @@ public class BoxController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         isRevealed.OnValueChanged -= OnRevealChanged;
+        computerPartName.OnValueChanged -= OnNameChanged; 
         base.OnNetworkDespawn();
     }
 }
