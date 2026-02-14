@@ -1,21 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using Unity.Netcode;
-using UnityEngine.SceneManagement;
 
-public class GameUIManager : NetworkBehaviour
+public class GameManager : NetworkBehaviour
 {
-    public static GameUIManager Instance;
+    public static GameManager Instance;
     
-    [Header("Lives Display")]
-    [SerializeField] private TMP_Text livesText;
+    // Clues organized by category - all 5 thieves will be from ONE category
+    private string[,] clues = {
+        {"keyboard", "mouse", "scanner", "joystick", "microphone"},
+        {"monitor", "speaker", "printer", "headphones", "vibrations"},
+        {"RAM", "SSD", "ROM", "cache", "HDD"},
+        {"AND", "OR", "NOT", "NAND", "NOR"}
+    };
     
-    [Header("Game Over Panel")]
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private TMP_Text gameOverTitle;
-    [SerializeField] private TMP_Text gameOverMessage;
+    [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
     
-    private void Awake()
+    private const int TOTAL_THIEVES = 5;
+    
+    void Awake()
     {
         if (Instance == null)
         {
@@ -26,41 +30,84 @@ public class GameUIManager : NetworkBehaviour
             Destroy(gameObject);
         }
         
-        // Hide game over panel at start
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-        }
+        Debug.Log("GameManager Awake called");
     }
     
-    public void UpdateLivesDisplay(int lives)
+    public override void OnNetworkSpawn()
     {
-        if (livesText != null)
-        {
-            livesText.text = $"Lives: {lives}";
-        }
-    }
-    
-    public void ShowGameOver(bool playerWon)
-    {
-        if (gameOverPanel == null) return;
+        base.OnNetworkSpawn();
+        Debug.Log("GameManager OnNetworkSpawn called");
         
-        gameOverPanel.SetActive(true);
-        
-        if (playerWon)
+        if (IsServer)
         {
-            gameOverTitle.text = "VICTORY!";
-            gameOverTitle.color = Color.green;
-            gameOverMessage.text = "All thieves caught!\nThe computer system is secure!";
+            Debug.Log("GameManager is on Server, initializing game...");
+            InitializeGame();
         }
         else
         {
-            gameOverTitle.text = "GAME OVER";
-            gameOverTitle.color = Color.red;
-            gameOverMessage.text = "Out of lives!\nThe thieves escaped!";
+            Debug.Log("GameManager is on Client (not initializing)");
+        }
+    }
+   
+    void InitializeGame()
+    {
+        Debug.Log("Initializing game - placing thieves...");
+        
+        if (boxes == null || boxes.Length == 0)
+        {
+            Debug.LogError("ERROR: No boxes assigned to GameManager!");
+            return;
         }
         
-        // disable player controls
-        Time.timeScale = 0f; // Pause the game
+        Debug.Log($"Found {boxes.Length} boxes");
+        
+        List<int> thiefIndices = new List<int>();
+        
+        // Randomly select ONE category for all 5 thieves
+        int randCategory = Random.Range(0, clues.GetLength(0));
+        Debug.Log($"Selected category {randCategory}");
+        
+        List<(int, int)> usedClues = new List<(int, int)>();
+        
+        // Place 5 thieves from the selected category
+        while (thiefIndices.Count < TOTAL_THIEVES)
+        {
+            int randomIndex = Random.Range(0, boxes.Length);
+            if (!thiefIndices.Contains(randomIndex))
+            {
+                thiefIndices.Add(randomIndex);
+                boxes[randomIndex].SetThief(true);
+                
+                string clueName = clues[randCategory, thiefIndices.Count - 1];
+                boxes[randomIndex].SetComputerPartName(clueName);
+                usedClues.Add((randCategory, thiefIndices.Count - 1));
+                
+                Debug.Log($"Thief placed at box {randomIndex} ({clueName})");
+            }
+        }
+        
+        Debug.Log($"All {TOTAL_THIEVES} thieves placed!");
+        
+        // Fill remaining boxes with random clues (no duplicates)
+        for (int i = 0; i < boxes.Length; i++)
+        {
+            if (!boxes[i].HasThief())
+            {
+                int cat = Random.Range(0, clues.GetLength(0));
+                int ind = Random.Range(0, 5);
+                
+                // Make sure we don't reuse any clues
+                while (usedClues.Contains((cat, ind)))
+                {
+                    cat = Random.Range(0, clues.GetLength(0));
+                    ind = Random.Range(0, 5);
+                }
+                usedClues.Add((cat, ind));
+                
+                boxes[i].SetComputerPartName(clues[cat, ind]);
+                
+                Debug.Log($"Box {i} ({clues[cat, ind]}): DOES NOT HAVE THIEF");
+            }
+        }
     }
 }
