@@ -17,12 +17,13 @@ public class NetworkManagerUI : MonoBehaviour
     [SerializeField] private Button client_btn;
 
     //text to display the join code
-    [SerializeField] private TMP_Text joinCodeText;
-    [SerializeField] private TMP_Text secondaryText;
+    //[SerializeField] private TMP_Text joinCodeText;
+    //[SerializeField] private TMP_Text secondaryText;
     // max number of players
     [SerializeField] private int maxPlayers = 2;
     // join code
     public string joinCode;
+    public static NetworkManagerUI Instance { get; private set; }
 
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private Button muteButton;
@@ -34,6 +35,8 @@ public class NetworkManagerUI : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+        DontDestroyOnLoad(this.gameObject);
         // add a listener to the host button
         host_btn.onClick.AddListener(() =>
         {
@@ -88,6 +91,7 @@ public class NetworkManagerUI : MonoBehaviour
             allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
             // get the join code
             joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            Debug.Log($"Join code generated: {joinCode}");
         }
         catch (RelayServiceException e)
         {
@@ -104,9 +108,14 @@ public class NetworkManagerUI : MonoBehaviour
         // start the host
         NetworkManager.Singleton.StartHost();
 
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            "GameScene",
+            UnityEngine.SceneManagement.LoadSceneMode.Single
+        );
+
         // display the join code
-        joinCodeText.text = joinCode;
-        secondaryText.text = "You are the HACKER (Host). Your objective: relay information to the FIREWALL! Use one word to connect the boxes where the thieves are hiding!";
+        //joinCodeText.text = joinCode;
+        //secondaryText.text = "You are the HACKER (Host). Your objective: relay information to the FIREWALL! Use one word to connect the boxes where the thieves are hiding!";
     }
 
     // start client relay
@@ -132,7 +141,7 @@ public class NetworkManagerUI : MonoBehaviour
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
 
         // Change text to say instructions
-        secondaryText.text = "You are the FIREWALL (Client). Your objective: find the thieves hidden in the boxes. Press (G) to make a guess!";
+        //secondaryText.text = "You are the FIREWALL (Client). Your objective: find the thieves hidden in the boxes. Press (G) to make a guess!";
 
         // start client
         NetworkManager.Singleton.StartClient();
