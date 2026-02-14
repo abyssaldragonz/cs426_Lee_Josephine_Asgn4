@@ -1736,6 +1736,8 @@ MonoBehaviour:
   maxPlayers: 2
   joinCode: 
   joinCodeInputField: {fileID: 1641944966}
+  muteButton: {fileID: 0}
+  muteButtonText: {fileID: 0}
 --- !u!1 &2007239225
 GameObject:
   m_ObjectHideFlags: 0
