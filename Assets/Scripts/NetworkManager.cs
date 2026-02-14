@@ -26,6 +26,9 @@ public class NetworkManagerUI : MonoBehaviour
     public static NetworkManagerUI Instance { get; private set; }
 
     [SerializeField] private TMP_InputField joinCodeInputField;
+    [SerializeField] private Button muteButton;
+    [SerializeField] private TMP_Text muteButtonText;
+
     // after all objectes are created and initialized
     // Awake() method is called and executed
     // Awake is always called before any Start functions.
@@ -51,6 +54,11 @@ public class NetworkManagerUI : MonoBehaviour
 
             // Change text to say instructions
         });
+
+        if (muteButton != null)
+        {
+            muteButton.onClick.AddListener(OnMuteButtonClicked);
+        }
     }
 
     private async void Start()
@@ -60,6 +68,17 @@ public class NetworkManagerUI : MonoBehaviour
 
         //sign in anonymously
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    }
+
+    void OnMuteButtonClicked()
+    {
+        MusicManager.ToggleMute();
+        
+        // Update button text
+        if (muteButtonText != null)
+        {
+            muteButtonText.text = MusicManager.IsMuted() ? "Unmute" : "Mute";
+        }
     }
 
     // Start host relay

@@ -193,6 +193,12 @@ public class PlayerMovement : NetworkBehaviour
     void UpdateLivesClientRpc(int newLives)
     {
         Debug.Log($"LIVES UPDATE: {newLives} remaining");
+
+        // Update UI if this is the Firewall player
+        if (isFirewall && GameUIManager.Instance != null)
+        {
+            GameUIManager.Instance.UpdateLivesDisplay(newLives);
+        }
     }
 
     [ClientRpc]
@@ -200,13 +206,17 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (firewallWon)
         {
-            Debug.Log("PLAYERS WINS! All thieves caught!");
-            //go to win screen
+            Debug.Log("PLAYERS WIN! All thieves caught!");
         }
         else
         {
             Debug.Log("GAME OVER! Firewall ran out of lives.");
-            //go to lose screen
+        }
+
+        // Show game over screen
+        if (GameUIManager.Instance != null)
+        {
+            GameUIManager.Instance.ShowGameOver(firewallWon);
         }
     }
 
@@ -227,6 +237,12 @@ public class PlayerMovement : NetworkBehaviour
             isFirewall = true; // Client is Firewall
             Debug.Log("This player is the FIREWALL (Client) - finds thieves");
             this.transform.position = new Vector3(0f, 2f, -10f); // Move Client (Firewall)
+
+            // Initialize lives display for Firewall
+            if (GameUIManager.Instance != null)
+            {
+                GameUIManager.Instance.UpdateLivesDisplay(lives.Value);
+            }
         }
 
         if (!IsOwner) return;

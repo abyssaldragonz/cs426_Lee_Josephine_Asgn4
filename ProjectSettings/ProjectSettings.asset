@@ -928,11 +928,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: b2d2d0e9-6a54-4cbc-8342-e087f2e99e01
+  cloudProjectId: a2e85423-af10-4377-a512-7bbdb937ebd5
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: hw02
-  organizationId: abyssaldragonz
+  projectName: NetworkingTutorial (1)
+  organizationId: alejandrarios0206
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

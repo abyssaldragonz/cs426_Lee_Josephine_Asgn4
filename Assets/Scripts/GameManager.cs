@@ -7,28 +7,39 @@ using TMPro;
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
-    
+
+    // Clues organized by category - all 5 thieves will be from ONE category
     private string[,] clues = {
-                            {"keyboard", "mouse", "scanner", "joystick", "microphone"},
-                            {"monitor", "speaker", "printer", "headphones", "vibrations"},
-                            {"RAM", "SSD", "ROM", "cache", "HDD"},
-                            {"AND", "OR", "NOT", "NAND", "NOR"}
-                           };
+        {"keyboard", "mouse", "scanner", "joystick", "microphone"},
+        {"monitor", "speaker", "printer", "headphones", "vibrations"},
+        {"RAM", "SSD", "ROM", "cache", "HDD"},
+        {"AND", "OR", "NOT", "NAND", "NOR"}
+    };
+
     [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
-    [SerializeField] private TextMeshProUGUI joinCodeText; 
+    [SerializeField] private TextMeshProUGUI joinCodeText;
 
     private const int TOTAL_THIEVES = 5;
-    
+
     void Awake()
     {
-        Instance = this;
-        Debug.Log(" GameManager Awake called");
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        Debug.Log("GameManager Awake called");
     }
 
     public override void OnNetworkSpawn()
     {
-        Debug.Log(" GameManager OnNetworkSpawn called");
-        
+        base.OnNetworkSpawn();
+        Debug.Log("GameManager OnNetworkSpawn called");
+
         if (IsServer)
         {
             Debug.Log(" GameManager is on Server, initializing game...");
@@ -37,7 +48,7 @@ public class GameManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log(" GameManager is on Client (not initializing)");
+            Debug.Log("GameManager is on Client (not initializing)");
         }
     }
 
@@ -72,7 +83,7 @@ public class GameManager : NetworkBehaviour
         while (attempts < 10) // Try up to 10 times
         {
             yield return new WaitForSeconds(0.3f);
-            
+
             NetworkManagerUI networkUI = NetworkManagerUI.Instance;
             if (networkUI == null)
             {
@@ -96,69 +107,72 @@ public class GameManager : NetworkBehaviour
                 }
                 yield break;
             }
-            
+
             Debug.LogWarning($"Attempt {attempts + 1}: Join code is still empty");
             attempts++;
         }
-        
+
         Debug.LogError("Failed to display join code after 10 attempts");
     }
 
     void InitializeGame()
     {
-        Debug.Log(" Initializing game - placing thieves...");
-        
+        Debug.Log("Initializing game - placing thieves...");
+
         if (boxes == null || boxes.Length == 0)
         {
-            Debug.LogError(" ERROR: No boxes assigned to GameManager!");
+            Debug.LogError("ERROR: No boxes assigned to GameManager!");
             return;
         }
-        
+
         Debug.Log($"Found {boxes.Length} boxes");
-        
-        // Randomly place 5 thieves
+
         List<int> thiefIndices = new List<int>();
-        int randCategory = Random.Range(0, clues.GetLength(0)); // choose random category
-        List<(int, int)> usedClues = new List<(int, int)>(); // store used clues
-        
+
+        // Randomly select ONE category for all 5 thieves
+        int randCategory = Random.Range(0, clues.GetLength(0));
+        Debug.Log($"Selected category {randCategory}");
+
+        List<(int, int)> usedClues = new List<(int, int)>();
+
+        // Place 5 thieves from the selected category
         while (thiefIndices.Count < TOTAL_THIEVES)
         {
             int randomIndex = Random.Range(0, boxes.Length);
-            if (!thiefIndices.Contains(randomIndex)) // doesn't already exist
+            if (!thiefIndices.Contains(randomIndex))
             {
                 thiefIndices.Add(randomIndex);
                 boxes[randomIndex].SetThief(true);
-                // Debug.Log($"DETECTED {clues[randCategory, (thiefIndices.Count-1)]}");
-                boxes[randomIndex].computerPartName = clues[randCategory, (thiefIndices.Count-1)];
-                usedClues.Add((randCategory, (thiefIndices.Count-1)));
-                Debug.Log($" Thief placed at box {randomIndex} ({boxes[randomIndex].computerPartName})");
+
+                string clueName = clues[randCategory, thiefIndices.Count - 1];
+                boxes[randomIndex].SetComputerPartName(clueName);
+                usedClues.Add((randCategory, thiefIndices.Count - 1));
+
+                Debug.Log($"Thief placed at box {randomIndex} ({clueName})");
             }
         }
-        
-        Debug.Log($" All {TOTAL_THIEVES} thieves placed!");
-        
-        // Debug: Verify thieves are set
-        
+
+        Debug.Log($"All {TOTAL_THIEVES} thieves placed!");
+
+        // Fill remaining boxes with random clues (no duplicates)
         for (int i = 0; i < boxes.Length; i++)
         {
-            if (boxes[i].HasThief())
-            {
-                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): HAS THIEF ✓");
-            }
-
-            else // not thief so assign other computer parts
+            if (!boxes[i].HasThief())
             {
                 int cat = Random.Range(0, clues.GetLength(0));
                 int ind = Random.Range(0, 5);
-                while (usedClues.Contains((cat,ind)))
+
+                // Make sure we don't reuse any clues
+                while (usedClues.Contains((cat, ind)))
                 {
                     cat = Random.Range(0, clues.GetLength(0));
                     ind = Random.Range(0, 5);
                 }
-                usedClues.Add((cat,ind));
-                boxes[i].computerPartName = clues[cat, ind];
-                
-                Debug.Log($"   Box {i} ({boxes[i].computerPartName}): DOES NOT HAVE THIEF X");
+                usedClues.Add((cat, ind));
+
+                boxes[i].SetComputerPartName(clues[cat, ind]);
+
+                Debug.Log($"Box {i} ({clues[cat, ind]}): DOES NOT HAVE THIEF");
             }
         }
     }
