@@ -63,4 +63,30 @@ public class GameUIManager : NetworkBehaviour
         // disable player controls
         Time.timeScale = 0f; // Pause the game
     }
+    
+    // Call this from a button on the game over screen
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; // Unpause
+        
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+        
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    
+    // Call this from a button to return to main menu
+    public void ReturnToMenu()
+    {
+        Time.timeScale = 1f; // Unpause
+        
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+        
+        SceneManager.LoadScene(0); // Load first scene (menu)
+    }
 }
