@@ -51,13 +51,13 @@ public class GameUIManager : NetworkBehaviour
         {
             gameOverTitle.text = "VICTORY!";
             gameOverTitle.color = Color.green;
-            gameOverMessage.text = "All thieves caught!\nThe computer system is secure!";
+            gameOverMessage.text = "Test Question for Serious Objective: Which one of these is not a type of memory?\nA) RAM\nB) ROM\nC) CPU\nD) Keyboard";
         }
         else
         {
             gameOverTitle.text = "GAME OVER";
             gameOverTitle.color = Color.red;
-            gameOverMessage.text = "Out of lives!\nThe thieves escaped!";
+            gameOverMessage.text = "Test Question for Serious Objective: Which one of these is not a type of memory?\nA) RAM\nB) ROM\nC) CPU\nD) Keyboard";
         }
         
         // disable player controls
