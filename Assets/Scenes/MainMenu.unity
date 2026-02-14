@@ -760,7 +760,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 952041537}
-    PlayerPrefab: {fileID: 0}
+    PlayerPrefab: {fileID: 1502759796394682003, guid: dd5d25f4b130e29429b12af71cfe1c6f, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: ff2b54ec38a699e49bb9d5ff8e188dec, type: 2}
@@ -1733,8 +1733,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkManagerUI
   host_btn: {fileID: 594162329}
   client_btn: {fileID: 2007239227}
-  joinCodeText: {fileID: 0}
-  secondaryText: {fileID: 0}
   maxPlayers: 2
   joinCode: 
   joinCodeInputField: {fileID: 1641944966}

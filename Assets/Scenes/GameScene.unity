@@ -361,6 +361,7 @@ MonoBehaviour:
   - {fileID: 1816719911}
   - {fileID: 964098629}
   joinCodeText: {fileID: 330051572}
+  playerPrefab: {fileID: 1502759796394682003, guid: dd5d25f4b130e29429b12af71cfe1c6f, type: 3}
 --- !u!4 &173544842
 Transform:
   m_ObjectHideFlags: 0

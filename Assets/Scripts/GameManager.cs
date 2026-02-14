@@ -15,7 +15,8 @@ public class GameManager : NetworkBehaviour
                             {"AND", "OR", "NOT", "NAND", "NOR"}
                            };
     [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
-    [SerializeField] private TextMeshProUGUI joinCodeText;    
+    [SerializeField] private TextMeshProUGUI joinCodeText; 
+
     private const int TOTAL_THIEVES = 5;
     
     void Awake()
