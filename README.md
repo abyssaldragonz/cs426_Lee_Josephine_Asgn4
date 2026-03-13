@@ -1,5 +1,28 @@
-# CS426-HW2-Networking
+# CS426 HW04  Physics, Textures, and Lights
 
+## JOSEPHINE LEE
+
+## IMPORTANT
+
+
+### Design Additions
+
+
+### Physics Construct
+
+
+### Billboard
+
+
+### Lights
+
+
+
+
+<hr />
+<hr />
+
+# ORIGINAL README.md
 Group Name: Team 2
 
 Group Members: Alejandra Rios, Elliot Willming, Josephine Lee
@@ -46,8 +69,8 @@ Asymmetric players
 * Boolean Gates (AND, OR, NOT, NAND, NOR)
 
 ## Test Question for Serious Objective: Which one of these is not a type of memory?
-                                                             A) RAM
-                                                             B) ROM
-                                                             C) Keyboard
+    A) RAM
+    B) ROM
+    C) Keyboard
 
 Expected Correct Answer for Serious Objective: Keyboard.

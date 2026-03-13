@@ -22,6 +22,11 @@ public class PlayerMovement : NetworkBehaviour
     public float force = 700f;
     public float sensitivityX = 15f;
 
+    // keep track of camera rotation
+    private float h = 0.0f;
+    private float v = 0.0f;
+
+
     Rigidbody rb;
     Transform t;
     float mouseX;
@@ -67,8 +72,10 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         // Camera rotation
-        float h = 500f * Input.GetAxis("Mouse X") * Time.deltaTime;
-        t.transform.Rotate(0, h, 0);
+        Cursor.lockState = CursorLockMode.Locked;
+        h += 5f * Input.GetAxis("Mouse X");
+        v -= 5f * Input.GetAxis("Mouse Y");
+        transform.eulerAngles = new Vector3(v, h, 0.0f);
 
         // ========== Jump with SPACE (works for BOTH players) ==========
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
@@ -230,7 +237,7 @@ public class PlayerMovement : NetworkBehaviour
             isFirewall = false; // Host is Hacker
             Debug.Log("This player is the HACKER (Host) - gives hints");
             this.transform.position = new Vector3(0f, 30f, -10f); // Move Host (Hacker)
-            playerCamera.transform.Rotate(75f, 0, 0);
+            // playerCamera.transform.Rotate(75f, 0, 0);
         }
         else
         {

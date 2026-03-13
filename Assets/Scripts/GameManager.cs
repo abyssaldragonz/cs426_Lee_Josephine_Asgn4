@@ -18,6 +18,7 @@ public class GameManager : NetworkBehaviour
 
     [SerializeField] private BoxController[] boxes; // Assign all 16 boxes here in Inspector
     [SerializeField] private TextMeshProUGUI joinCodeText;
+    [SerializeField] private TextMeshProUGUI instructionText;
 
     private const int TOTAL_THIEVES = 5;
 
@@ -175,5 +176,8 @@ public class GameManager : NetworkBehaviour
                 Debug.Log($"Box {i} ({clues[cat, ind]}): DOES NOT HAVE THIEF");
             }
         }
+
+        instructionText.text = "Avoid the crystal sentries and collect the coins located inside the boxes! Press [Q] to phase through the PURPLE barriers!\n\nHACKER'S ROLE (red): relay information to the FIREWALL! Use one word to connect the boxes where the thieves are hiding!\n\nFIREWALL'S ROLE (blue): find the thieves hidden in the boxes. Press (G) to make a guess!";
+
     }
 }
