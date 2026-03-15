@@ -3,21 +3,36 @@
 ## JOSEPHINE LEE
 
 ## IMPORTANT
+The initial submission for Assignment 2 **does** work in multiplayer. This submission for HW04 works in multiplayer as well but if it needs to be tested in single-player, please use run **host** version of the game. 
 
+Professor has also mentioned that while the deadline was on Friday 3/13 11:59pm, she said we can continue to submit anytime before class on Monday.
+
+Video Demo here: [TO BE ADDED]
 
 ### Design Additions
+The additions from Assignment 2 are: 
 
+* 
 
 ### Physics Construct
+The two physics constructs added to this game are:
 
+1. Collision knockback when players run into the force field. They get knocked back and upwards, simulating an explosion-like collision.
+2. Particle system that spawns when a force field is destroyed. This particle system is persistent.
 
 ### Billboard
+The billboard with textures added to this game is:
 
+* An "inventory" system representing the coins collected throughout the map. The panel object spawns objects with the texture of a coin, which gets added to the inventory as they are collected.
 
 ### Lights
+The two lights added to this game are:
 
+1. Stationary light emitting from the coins that need to be collected. 
+2. Rotating light from the crystal sentries that freeze the player in place if they get spotted by it. Players are unable to move or do any actions when they are caught under the spotlight.
 
-
+<br />
+<br />
 
 <hr />
 <hr />
