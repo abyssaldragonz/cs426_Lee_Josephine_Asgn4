@@ -44,6 +44,7 @@ public class PlayerMovement : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
         t = GetComponent<Transform>();
         isGrounded = false;
+        Debug.Log("STARTING PLAYER.");
     }
 
     void Update()
@@ -75,7 +76,14 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         h += 5f * Input.GetAxis("Mouse X");
         v -= 5f * Input.GetAxis("Mouse Y");
+        // Debug.Log("H V" + h + " " + v);
+        if (v < -15)
+            v = -15;
+        if (v > 55)
+            v = 55;
         transform.eulerAngles = new Vector3(v, h, 0.0f);
+        // playerCamera.transform.RotateAround(transform.position, Vector3.up, h * Time.deltaTime);
+
 
         // ========== Jump with SPACE (works for BOTH players) ==========
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
@@ -111,6 +119,7 @@ public class PlayerMovement : NetworkBehaviour
         {
             Debug.Log($"Player position: {transform.position}");
         }
+
     }
 
     void OnCollisionEnter(Collision coll)
@@ -118,6 +127,13 @@ public class PlayerMovement : NetworkBehaviour
         if(coll.gameObject.tag == "Floor" || coll.gameObject.tag == "Box")
         {
             isGrounded = true;
+        }
+
+        // with force field
+        if (coll.gameObject.tag == "EnergyField") {
+            // playerRB.linearVelocity = new Vector3(10f, 10f, 100f);
+            rb.linearVelocity -= transform.forward * 100f * Time.deltaTime;
+            rb.linearVelocity += Vector3.up * 100f * Time.deltaTime;
         }
     }
     void OnCollisionExit(Collision coll)

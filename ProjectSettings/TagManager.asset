@@ -7,6 +7,8 @@ TagManager:
   - Bullet
   - Floor
   - Box
+  - Spotlight
+  - EnergyField
   layers:
   - Default
   - TransparentFX
