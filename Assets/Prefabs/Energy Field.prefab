@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6977328458847521919}
   - component: {fileID: 2886692606198748303}
   - component: {fileID: 5418983324442542834}
+  - component: {fileID: 5739314627481721143}
   m_Layer: 0
   m_Name: Energy Field
   m_TagString: EnergyField
@@ -140,3 +141,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
+--- !u!114 &5739314627481721143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1057599990230899222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d991d477505d83841860595e0248e945, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ForceField
+  player: {fileID: 1502759796394682003, guid: dd5d25f4b130e29429b12af71cfe1c6f, type: 3}

@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using TMPro;
 
 public class PlayerMovement : NetworkBehaviour
 {
@@ -16,6 +14,7 @@ public class PlayerMovement : NetworkBehaviour
     public GameObject bullet;
     [SerializeField] private AudioListener audioListener;
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private GameObject particles;
 
 
     public float rotationSpeed = 90;
@@ -120,6 +119,42 @@ public class PlayerMovement : NetworkBehaviour
             Debug.Log($"Player position: {transform.position}");
         }
 
+        
+        // ========== PHASING THROUGH THE FORCE FIELDS ==================
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            var closestObj = findClosestEnergy();
+
+            if (!closestObj) // is null
+                return;
+
+            // closestObj.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>().Play();
+            GameObject newParticles = Instantiate(particles);
+            newParticles.transform.position = closestObj.transform.position + new Vector3(0,5,0);
+            Debug.Log($"Q pressed! Destroying field at " + closestObj.transform.position);
+            Destroy(closestObj); // remove the force field that is closest to player
+        }
+        // ==============================================================
+    }
+
+    private GameObject findClosestEnergy()
+    {
+        var arr = GameObject.FindGameObjectsWithTag("EnergyField");
+        var pos = transform.position;
+
+        float dist = 75;
+        GameObject nearest = null;
+        foreach(var go in arr)
+        {
+            var d = (go.transform.position - pos).sqrMagnitude; 
+            if (d < dist)
+            {
+                nearest = go;
+                dist = d;
+            }
+        }
+
+        return nearest;
     }
 
     void OnCollisionEnter(Collision coll)

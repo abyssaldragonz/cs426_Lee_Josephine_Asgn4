@@ -255,10 +255,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.6718185
+  m_Radius: 0.75171775
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0.07991564}
+  m_Center: {x: -0.015979826, y: 0, z: 0.07991564}
 --- !u!114 &6386700522296406114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,6 +307,7 @@ MonoBehaviour:
   bullet: {fileID: 7654982766713845763, guid: 50892aee52ca6b44c94583dc76cedd3f, type: 3}
   audioListener: {fileID: 7973212071354034577}
   playerCamera: {fileID: 5201658584094757720}
+  particles: {fileID: 2166507946041409899, guid: 70104fec5180b9d4ca3822871c7bde81, type: 3}
   rotationSpeed: 90
   force: 700
   sensitivityX: 15
@@ -337,7 +338,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &-9040690840889225405
 MonoBehaviour:
   m_ObjectHideFlags: 0

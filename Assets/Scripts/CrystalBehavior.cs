@@ -1,17 +1,15 @@
-using Unity.Services.Lobbies.Models;
-using UnityEditor.Callbacks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CrystalBehavior : MonoBehaviour
 {
 
     [SerializeField] private GameObject player;
-    private Rigidbody playerRB; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        playerRB = player.GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
@@ -24,18 +22,22 @@ public class CrystalBehavior : MonoBehaviour
     private void OnTriggerStay(Collider other) {
         if (other.gameObject.tag == "Player") {
             Debug.Log("Spotlight: collision with player detected");
-            // player.GetComponent<PlayerMovement>().enabled = false; // stop player from moving
-            // player.SetActive(false);
-            // playerRB.constraints = RigidbodyConstraints.FreezeAll;
+            var playerRB = other.GetComponent<Rigidbody>();
+            // stop player from moving
+            other.GameObject().GetComponent<PlayerMovement>().enabled = false; 
+            // other.GameObject().SetActive(false);
+            playerRB.constraints = RigidbodyConstraints.FreezeAll;
         }
     }
 
     private void OnTriggerExit(Collider other) {
         if (other.gameObject.tag == "Player") {
-            // player.GetComponent<PlayerMovement>().enabled = true; // let player move
-            // player.SetActive(true);
-            // playerRB.constraints = RigidbodyConstraints.None;
-            // playerRB.constraints = RigidbodyConstraints.FreezeRotation;
+            var playerRB = other.GetComponent<Rigidbody>();
+            // let player move
+            other.GameObject().GetComponent<PlayerMovement>().enabled = true; 
+            // other.GameObject().SetActive(true);
+            playerRB.constraints = RigidbodyConstraints.None;
+            playerRB.constraints = RigidbodyConstraints.FreezeRotation;
         }
     }
 }
