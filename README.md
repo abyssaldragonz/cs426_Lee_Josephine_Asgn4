@@ -30,7 +30,7 @@ The billboard with textures added to this game is:
 The two lights added to this game are:
 
 1. Stationary light emitting from the coins that need to be collected. The lights fit into the design to add an additional goal that the players have to complete and are a gold tint to match the coin model.
-2. Rotating light from the crystal sentries that freeze the player in place if they get spotted by it. Players are unable to move or do any actions when they are caught under the spotlight. The rotating lights make it more difficult for players to complete their goals and are a purple tint to match the crystals model.
+2. Rotating light from the crystal sentries that freeze the player in place if they get spotted by it. Players are unable to move or do any actions when they are caught under the spotlight. The rotating lights make it more difficult for players to complete their goals and are a purple tint to match the crystals model. There is a small possibility that players may get softlocked when approaching the sentries due to how the collisions work; the crystals were designed to be avoided by the players. 
 
 <br />
 <br />
