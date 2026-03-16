@@ -2,34 +2,35 @@
 
 ## JOSEPHINE LEE
 
-## IMPORTANT
+## IMPORTANT!!
 The initial submission for Assignment 2 **does** work in multiplayer. This submission for HW04 works in multiplayer as well but if it needs to be tested in single-player, please use run **host** version of the game. 
 
 Professor has also mentioned that while the deadline was on Friday 3/13 11:59pm, she said we can continue to submit anytime before class on Monday.
 
-Video Demo here: [TO BE ADDED]
+Video Demo [here](https://drive.google.com/file/d/1wwFmIBjkFt9MNB9jqMRdvGop_2cXXTyU/view?usp=sharing)
 
 ### Design Additions
 The additions from Assignment 2 are: 
 
-* 
+* The additional obstacles for both players to overcome in each of their respective areas
+* The physics constructs and lights and additional billboard
 
-### Physics Construct
+### Physics Constructs
 The two physics constructs added to this game are:
 
-1. Collision knockback when players run into the force field. They get knocked back and upwards, simulating an explosion-like collision.
-2. Particle system that spawns when a force field is destroyed. This particle system is persistent.
+1. Collision knockback when players run into the energy field. They get knocked back and upwards, simulating an explosion-like collision. The energy fields (along with the additional walls) make it more difficult for players to complete their goals and are a purple tint to match the crystals model.
+2. Particle system that spawns when a force field is destroyed with the [Q] key, which does not have a limit or cooldown. This particle system is persistent. The particles add a sense of visual accomplishment of destroying the force field and are a purple tint to match the force field.
 
 ### Billboard
 The billboard with textures added to this game is:
 
-* An "inventory" system representing the coins collected throughout the map. The panel object spawns objects with the texture of a coin, which gets added to the inventory as they are collected.
+* An "inventory" system representing the coins collected throughout the map. The panel object spawns objects with the texture of a coin, which gets added to the inventory as they are collected. The objects are added incrementally (not shown in video due to time limit) in a horizontal layout. The coin texture of the 2D model matches that of the 3D coin. 
 
 ### Lights
 The two lights added to this game are:
 
-1. Stationary light emitting from the coins that need to be collected. 
-2. Rotating light from the crystal sentries that freeze the player in place if they get spotted by it. Players are unable to move or do any actions when they are caught under the spotlight.
+1. Stationary light emitting from the coins that need to be collected. The lights fit into the design to add an additional goal that the players have to complete and are a gold tint to match the coin model.
+2. Rotating light from the crystal sentries that freeze the player in place if they get spotted by it. Players are unable to move or do any actions when they are caught under the spotlight. The rotating lights make it more difficult for players to complete their goals and are a purple tint to match the crystals model.
 
 <br />
 <br />
